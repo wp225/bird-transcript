@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BPA — Bird Phonetic Alphabet Demo</title>
+  <title>Canary Transcript Demo</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -138,11 +138,11 @@
 <header>
   <div class="container">
     <div class="pill">Interactive Demo</div>
-    <h1>Bird Phonetic Alphabet <span>(BPA)</span></h1>
+    <h1>Canary <span>Transcript</span></h1>
     <p class="subtitle">
-      A cross-species phonetic transcription system for canary song, mapping
-      syllables to human CV phoneme units via MFCC features and k-nearest
-      neighbor matching against TIMIT.
+      Phonetic transcription of canary song — mapping syllables to
+      human CV phoneme units via MFCC features and k-nearest neighbor
+      matching against TIMIT.
     </p>
     <div class="btn-row">
       <a class="btn primary" href="#examples">▶ Listen &amp; Explore</a>
@@ -156,7 +156,7 @@
     <div class="section-label">How it works</div>
     <h2>From birdsong to phonetic transcript</h2>
     <p class="desc">
-      BPA segments each canary recording into syllables, extracts 9-dim MFCC
+      The system segments each canary recording into syllables, extracts 9-dim MFCC
       features, clusters them with k-means (k=50), then labels each cluster via
       cosine-kNN against TIMIT. Duration and F0 slope modulate vowel length and accent marks.
     </p>
@@ -178,7 +178,7 @@
       </div>
       <div class="method-card">
         <div class="icon">🔤</div>
-        <h3>BPA label generation</h3>
+        <h3>Phonetic label generation</h3>
         <p>Duration → vowel length (díiiin); F0 slope → accent (á, à).</p>
       </div>
     </div>
@@ -199,7 +199,7 @@
 
 <footer>
   <div class="container">
-    BPA Demo &nbsp;|&nbsp;
+    Canary Transcript &nbsp;|&nbsp;
     <a href="https://github.com/wp225/bird-transcript">GitHub ↗</a>
   </div>
 </footer>
