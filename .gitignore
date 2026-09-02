@@ -217,3 +217,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Large local media and intermediates — kept on disk, never pushed
+# (canary_tokens_slim.csv alone is 157 MB, past GitHub's 100 MB file limit)
+canary_tokens_slim.csv
+*.mp4
+video/
+demo_samples/
