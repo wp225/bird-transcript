@@ -96,6 +96,18 @@ button:hover { background: #4f52d8; }
 .lane-tick { position: absolute; width: 1px; background: rgba(129,140,248,0.35); }
 .lane-tick.active { background: #facc15; }
 
+/* ── example picker ── */
+.example-picker { margin: 0.9rem auto 0; padding: 0.85rem 1rem; max-width: 1000px; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 0.55rem; }
+.example-group { margin-bottom: 0.75rem; }
+.example-group:last-child { margin-bottom: 0; }
+.example-group h4 { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+.example-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.example-chip { font-family: var(--mono); font-size: 0.72rem; padding: 0.25rem 0.55rem; border-radius: 0.3rem; color: var(--text); background: var(--surface2); border: 1px solid var(--border); cursor: pointer; transition: border-color .12s, background .12s; }
+.example-chip:hover { border-color: var(--accent); background: #2a2e42; }
+.example-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.example-chip span { color: var(--muted); margin-left: 0.35rem; }
+.example-chip.active span { color: rgba(255,255,255,0.75); }
+
 .notice { margin-top: 0.7rem; padding: 0.6rem 0.75rem; border-radius: 0.4rem; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.25); color: #fde68a; font-size: 0.8rem; }
 .manifold-card { background: #000; border-color: #1b2030; padding: 0.8rem 0.9rem 0.9rem; }
 .scatter { display: block; width: 100%; height: clamp(420px, 56vh, 680px); border-radius: 0.4rem; background: #000; cursor: grab; touch-action: none; }

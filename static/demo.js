@@ -369,8 +369,9 @@ function render(payload) {
   activeIndex = -1;
   widthCache.clear();
 
+  const origin = payload.source ? `${payload.source.bird_name} · ` : '';
   summary.textContent =
-    `${payload.segments.length} syllables · ${payload.duration_s.toFixed(2)} s · ${payload.segmentation_model}`;
+    `${origin}${payload.segments.length} syllables · ${payload.duration_s.toFixed(2)} s · ${payload.segmentation_model}`;
 
   buildSpectrogramLayer();
 
@@ -774,10 +775,90 @@ scatter.addEventListener('click', (event) => {
   }
 });
 
+/* ── bundled examples ─────────────────────────────────────────────────────────
+   The stored transcripts in assets/data.json predate the segmentation fix, so the
+   audio is re-run through the live pipeline rather than replayed from the file. */
+const examplesButton = document.getElementById('show-examples');
+const examplePicker = document.getElementById('example-picker');
+let examplesLoaded = false;
+
+function renderExamples(items) {
+  const groups = new Map();
+  items.forEach((item) => {
+    if (!groups.has(item.bird_name)) groups.set(item.bird_name, []);
+    groups.get(item.bird_name).push(item);
+  });
+
+  examplePicker.innerHTML = '';
+  groups.forEach((entries, bird) => {
+    const group = document.createElement('div');
+    group.className = 'example-group';
+    const heading = document.createElement('h4');
+    heading.textContent = bird;
+    group.appendChild(heading);
+
+    const chips = document.createElement('div');
+    chips.className = 'example-chips';
+    entries.forEach((item) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'example-chip';
+      chip.innerHTML = `${item.id}<span>${item.duration_s.toFixed(1)}s</span>`;
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.example-chip').forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        loadExample(item);
+      });
+      chips.appendChild(chip);
+    });
+    group.appendChild(chips);
+    examplePicker.appendChild(group);
+  });
+}
+
+async function openExamples() {
+  if (!examplesLoaded) {
+    showStatus('Loading examples...');
+    try {
+      const response = await fetch('/api/examples');
+      const items = await response.json();
+      if (!response.ok) throw new Error(items.detail || 'Could not load examples');
+      if (!items.length) { showStatus('No bundled examples found.', true); return; }
+      renderExamples(items);
+      examplesLoaded = true;
+      showStatus(`${items.length} bundled recordings — pick one to transcribe.`);
+    } catch (error) {
+      showStatus(error.message, true);
+      return;
+    }
+  }
+  examplePicker.hidden = !examplePicker.hidden;
+}
+
+async function loadExample(item) {
+  showStatus(`Segmenting ${item.id}...`);
+  if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+  player.src = item.audio_url;
+
+  try {
+    const response = await fetch(`/api/examples/${encodeURIComponent(item.id)}`, { method: 'POST' });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || 'Request failed');
+
+    render(payload);
+    showStatus(`${item.bird_name} · ${item.filename} — ${payload.segments.length} syllables.`);
+  } catch (error) {
+    showStatus(error.message, true);
+  }
+}
+
+examplesButton.addEventListener('click', openExamples);
+
 /* ── upload ───────────────────────────────────────────────────────────────── */
 async function uploadAndTranscribe(file) {
   showStatus('Segmenting and transcribing...');
   startButton.style.pointerEvents = 'none';
+  document.querySelectorAll('.example-chip').forEach((c) => c.classList.remove('active'));
 
   if (objectUrl) URL.revokeObjectURL(objectUrl);
   objectUrl = URL.createObjectURL(file);

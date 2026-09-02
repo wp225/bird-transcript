@@ -1,5 +1,6 @@
 import base64
 import io
+import json
 import os
 import pickle
 import sys
@@ -34,6 +35,7 @@ EXTRACTOR_PATH = BIRDTRANSCRIPT_ROOT / "scripts/extract_features_temporal.py"
 SEGMENT_MODEL_PATH = BIRDTRANSCRIPT_ROOT / "saved_models/pooled/pooled_all.pt"
 SEGMENT_MODEL_MODULE_PATH = BIRDTRANSCRIPT_ROOT / "models/conv_rnn.py"
 INDEX_HTML = BASE_DIR / "static" / "index.html"
+EXAMPLES_PATH = BASE_DIR / "assets" / "data.json"
 
 # Preprocessing constants, fixed by how pooled_all.pt was trained
 # (birdtranscript/dataset.py CanariesSegmentationDataset).
@@ -101,6 +103,41 @@ def load_segmentation_model() -> torch.nn.Module:
 
 app = FastAPI(title="Bird Transcript Demo", version="0.2.0")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+for _media in ("assets", "demo_samples"):
+    if (BASE_DIR / _media).is_dir():
+        app.mount(f"/{_media}", StaticFiles(directory=str(BASE_DIR / _media)), name=_media)
+
+
+@lru_cache(maxsize=1)
+def load_examples() -> Dict[str, Dict[str, Any]]:
+    """Bundled recordings from assets/data.json, keyed by id.
+
+    Only the audio is used: the transcripts stored alongside it were produced by an
+    earlier pipeline, so examples are re-transcribed live like any other upload.
+    """
+    if not EXAMPLES_PATH.exists():
+        return {}
+
+    with EXAMPLES_PATH.open() as fh:
+        entries = json.load(fh)
+
+    examples: Dict[str, Dict[str, Any]] = {}
+    for entry in entries:
+        rel = entry.get("audio")
+        if not rel or not entry.get("id"):
+            continue
+        path = (BASE_DIR / rel).resolve()
+        # never serve anything outside the project, whatever the JSON says
+        if not path.is_file() or BASE_DIR not in path.parents:
+            continue
+        examples[str(entry["id"])] = {
+            "id": str(entry["id"]),
+            "bird_name": entry.get("bird_name", "Unknown"),
+            "filename": entry.get("filename", path.name),
+            "audio_url": "/" + rel.lstrip("/"),
+            "path": path,
+        }
+    return examples
 
 
 @lru_cache(maxsize=1)
@@ -406,6 +443,49 @@ def index() -> FileResponse:
 @app.get("/health")
 def health() -> Dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/examples")
+def list_examples() -> JSONResponse:
+    examples = load_examples()
+    return JSONResponse(
+        [
+            {
+                "id": item["id"],
+                "bird_name": item["bird_name"],
+                "filename": item["filename"],
+                "audio_url": item["audio_url"],
+                "duration_s": round(librosa.get_duration(path=str(item["path"])), 2),
+            }
+            for item in examples.values()
+        ]
+    )
+
+
+@app.post("/api/examples/{example_id}")
+def transcribe_example(example_id: str) -> JSONResponse:
+    item = load_examples().get(example_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Unknown example.")
+
+    try:
+        audio, _ = librosa.load(str(item["path"]), sr=SR, mono=True, duration=MAX_AUDIO_S)
+        if audio.size < N_FFT * 4:
+            raise HTTPException(status_code=400, detail="Example is too short to segment.")
+        payload = transcribe_audio(audio)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {exc}") from exc
+
+    payload["source"] = {
+        "id": item["id"],
+        "bird_name": item["bird_name"],
+        "filename": item["filename"],
+        "audio_url": item["audio_url"],
+    }
+    return JSONResponse(payload)
 
 
 @app.post("/api/transcribe")

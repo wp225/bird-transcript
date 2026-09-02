@@ -18,9 +18,14 @@
     </p>
     <div class="btn-row">
       <label class="btn primary" id="start-upload" for="audio-file">Choose a recording</label>
+      <button class="btn" id="show-examples" type="button">Examples</button>
     </div>
     <input id="audio-file" type="file" accept=".wav,.mp3,.flac,.ogg,.m4a,.aac" />
     <p id="status" class="status">WAV, MP3, FLAC, OGG or M4A. The first 30 seconds are analysed.</p>
+  </div>
+
+  <div class="container">
+    <div id="example-picker" class="example-picker" hidden></div>
   </div>
 </header>
 
