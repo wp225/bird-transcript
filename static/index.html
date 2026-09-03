@@ -11,10 +11,11 @@
 
 <header class="hero">
   <div class="container">
-    <div class="pill">Interactive Demo</div>
-    <h1>Canary <span>Transcript</span></h1>
+    <div class="pill">Segmentation &amp; transcription</div>
+    <h1>Canary Transcript</h1>
     <p class="subtitle">
-      Upload a bird recording.
+      Upload a recording, or pick one of the bundled birds. Every syllable is
+      located by the ConvRNN segmentor, then given a phonetic token.
     </p>
     <div class="btn-row">
       <label class="btn primary" id="start-upload" for="audio-file">Choose a recording</label>
@@ -68,7 +69,7 @@
 
     <div class="result-card manifold-card">
       <canvas id="scatter" class="scatter"></canvas>
-      <p class="card-meta scatter-hint">
+      <p class="scatter-hint">
         Each syllable's 26-D feature vector projected onto the first three principal
         components of the corpus. Grey haze is the reference corpus; markers are this
         recording, coloured by emission time and linked in song order.

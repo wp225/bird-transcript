@@ -558,7 +558,7 @@ function drawScatter() {
   };
 
   // reference corpus: dim haze behind everything
-  ctx.fillStyle = 'rgba(190, 200, 220, 0.14)';
+  ctx.fillStyle = 'rgba(196, 188, 176, 0.15)';
   data.pca.reference.forEach((p) => {
     const { x, y, f } = toScreen(p);
     ctx.fillRect(x, y, Math.max(1, 1.3 * f), Math.max(1, 1.3 * f));
@@ -569,7 +569,7 @@ function drawScatter() {
     .filter(Boolean);
 
   // song order: faint links between consecutive syllables
-  ctx.strokeStyle = 'rgba(226, 232, 240, 0.16)';
+  ctx.strokeStyle = 'rgba(233, 228, 218, 0.16)';
   ctx.lineWidth = 0.7;
   ctx.beginPath();
   points.forEach((pt, i) => {
@@ -628,10 +628,10 @@ function drawScatter() {
     // per-marker numerics, only where a slot was reserved above
     if (kept.has(item.index)) {
       ctx.font = '8.5px ui-monospace, monospace';
-      ctx.fillStyle = active ? 'rgba(253, 224, 71, 0.95)' : 'rgba(226, 232, 240, 0.5)';
+      ctx.fillStyle = active ? 'rgba(253, 224, 71, 0.95)' : 'rgba(233, 228, 218, 0.5)';
       ctx.fillText((item.seg.duration_ms / 1000).toFixed(4), x + 7 * f, y - 2);
       ctx.font = '7px ui-monospace, monospace';
-      ctx.fillStyle = active ? 'rgba(253, 224, 71, 0.7)' : 'rgba(148, 163, 184, 0.42)';
+      ctx.fillStyle = active ? 'rgba(253, 224, 71, 0.7)' : 'rgba(164, 157, 146, 0.42)';
       ctx.fillText(`${item.seg.label} ${item.seg.start_s.toFixed(2)}s`, x + 7 * f, y + 7);
     }
   });
@@ -644,16 +644,16 @@ function drawScatterChrome(ctx, width, height, toScreen) {
 
   // title block
   ctx.font = 'italic 13px Georgia, "Times New Roman", serif';
-  ctx.fillStyle = 'rgba(226, 232, 240, 0.92)';
+  ctx.fillStyle = 'rgba(233, 228, 218, 0.92)';
   ctx.fillText('SPATIOTEMPORAL SYLLABLE MANIFOLD', 16, 24);
   ctx.font = 'italic 10px Georgia, "Times New Roman", serif';
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.75)';
+  ctx.fillStyle = 'rgba(164, 157, 146, 0.75)';
   ctx.fillText('(26 FEATURES → 3D PCA)', 16, 40);
 
   const variance = spec.explained_variance;
   const total = variance.reduce((a, b) => a + b, 0);
   ctx.font = '8.5px ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.6)';
+  ctx.fillStyle = 'rgba(164, 157, 146, 0.6)';
   ctx.fillText(
     `PC1-3  ${(total * 100).toFixed(1)}%  (${variance.map((v) => `${(v * 100).toFixed(1)}`).join(' / ')})`,
     16, 54,
@@ -668,13 +668,13 @@ function drawScatterChrome(ctx, width, height, toScreen) {
     ctx.fillRect(barX, barTop + i, 7, 1);
   }
   ctx.font = '7.5px ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.7)';
+  ctx.fillStyle = 'rgba(164, 157, 146, 0.7)';
   ctx.fillText(`${data.duration_s.toFixed(1)}s`, barX + 11, barTop + 5);
   ctx.fillText('0.0s', barX + 11, barTop + barH);
   ctx.save();
   ctx.translate(barX - 6, barTop + barH / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.55)';
+  ctx.fillStyle = 'rgba(164, 157, 146, 0.55)';
   ctx.fillText('EMISSION TIME', -34, 0);
   ctx.restore();
 
@@ -686,7 +686,7 @@ function drawScatterChrome(ctx, width, height, toScreen) {
   names.forEach((name, i) => {
     const y = 30 + i * rowH;
     const load = spec.loadings[i] ?? 0;
-    ctx.fillStyle = `rgba(226, 232, 240, ${0.22 + load * 0.5})`;
+    ctx.fillStyle = `rgba(233, 228, 218, ${0.22 + load * 0.5})`;
     ctx.fillText(name.toUpperCase().slice(0, 15), listX + 16, y);
     ctx.fillStyle = rampColour(load, 0.5 + load * 0.45);
     ctx.fillRect(listX, y - 4, 13 * load + 1, 3);
@@ -698,14 +698,14 @@ function drawScatterChrome(ctx, width, height, toScreen) {
   const axes = [[[1, 0, 0], 'PC1'], [[0, 1, 0], 'PC2'], [[0, 0, 1], 'PC3']];
   axes.forEach(([axis, name]) => {
     const [x, y] = project3(axis);
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+    ctx.strokeStyle = 'rgba(164, 157, 146, 0.45)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(gx, gy);
     ctx.lineTo(gx + x * 22, gy - y * 22);
     ctx.stroke();
     ctx.font = '6.5px ui-monospace, monospace';
-    ctx.fillStyle = 'rgba(148, 163, 184, 0.8)';
+    ctx.fillStyle = 'rgba(164, 157, 146, 0.8)';
     ctx.fillText(name, gx + x * 32 - 6, gy - y * 32 + 2);
   });
   ctx.strokeStyle = 'rgba(248, 113, 113, 0.95)';
